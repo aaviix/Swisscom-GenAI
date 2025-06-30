@@ -1,29 +1,25 @@
-import { AdminDashboard } from "@/components/admin-dashboard"
-import { createClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import { AdminDashboard } from "@/components/admin-dashboard"
 
-export default async function Admin() {
-  const supabase = await createClient()
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  // In production, redirect to login if not authenticated
-  // For development, we'll allow access without authentication
-  if (!session && process.env.NODE_ENV === "production") {
-    redirect("/login")
+export default function AdminPage() {
+  const cookieStore = cookies()
+  const sessionCookie = cookieStore.get("session")
+  if (!sessionCookie) {
+    // no session → force sign‐in
+    return redirect("/login")
   }
 
-  // In production, check if user has admin role
-  // For development, we'll allow access without role check
-  const userId = session?.user?.id || "00000000-0000-0000-0000-000000000000"
+  // parse the JSON you stored in login route
+  const { userId } = JSON.parse(sessionCookie.value)
 
   return (
     <div className="container py-10">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-2">Manage the AI assistant knowledge base and settings</p>
+        <p className="text-muted-foreground mt-2">
+          Manage the AI assistant knowledge base and settings
+        </p>
       </div>
       <AdminDashboard userId={userId} />
     </div>
