@@ -2,8 +2,8 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { AdminDashboard } from "@/components/admin-dashboard"
 
-export default function AdminPage() {
-  const cookieStore = cookies()
+export default async function AdminPage() {
+  const cookieStore = await cookies()
   const sessionCookie = cookieStore.get("session")
   if (!sessionCookie) {
     // no session → force sign‐in
